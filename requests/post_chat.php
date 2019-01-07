@@ -29,31 +29,31 @@ if(!empty($_POST['id'])) {
 		$feed->max_images = $settings['ilimit'];
 		$feed->plugins = loadPlugins($db);
 
-		if(!empty($_POST['message']) && $_POST['message'] !== ' ' && isset($_POST['type']) == false) {
-			$response = $feed->postChat($_POST['message'], $_POST['id']);
-			if( $response !== false ){
-			  $message = [
-				'from' => $user['idu'],
-				'destination' => $_POST['id'],
-				'message' => $_POST['message'],
-				'image' => '',
-			  ];
-			  sendMessage($message);
-			}
-			echo $response[0];
-		  } elseif(isset($_POST['type'])) {
-			$response = $feed->postChat($_POST['message'], $_POST['id'], $_POST['type'], (isset($_POST['value']) ? $_POST['value'] : null));
-			if( $response !== false ){
-			  $message = [
-				'from' => $user['idu'],
-				'destination' => $_POST['id'],
-				'message' => $_POST['message'],
-				'image' => $CONF['url'].'/uploads/media/'.$response[1],
-			  ];
-			  sendMessage($message);
-			}
-			echo $response[0];
-		  }
+    if(!empty($_POST['message']) && $_POST['message'] !== ' ' && isset($_POST['type']) == false) {
+      $response = $feed->postChat($_POST['message'], $_POST['id']);
+      if( $response !== false ){
+        $message = [
+          'from' => $user['idu'],
+          'destination' => $_POST['id'],
+          'message' => $_POST['message'],
+          'image' => '',
+        ];
+        sendMessage($message);
+      }
+      echo $response[0];
+    } elseif(isset($_POST['type'])) {
+      $response = $feed->postChat($_POST['message'], $_POST['id'], $_POST['type'], (isset($_POST['value']) ? $_POST['value'] : null));
+      if( $response !== false ){
+        $message = [
+          'from' => $user['idu'],
+          'destination' => $_POST['id'],
+          'message' => $_POST['message'],
+          'image' => $CONF['url'].'/uploads/media/'.$response[1],
+        ];
+        sendMessage($message);
+      }
+      echo $response[0];
+    }
 	}
 }
 

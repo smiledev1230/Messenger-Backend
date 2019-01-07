@@ -6067,7 +6067,7 @@ position: relative;
 		// Close the statement
 		$stmt->close();
 		if($affected) {
-			return $this->getChatMessages($uid, null, null, 1);
+			return [$this->getChatMessages($uid, null, null, 1), $this->db->real_escape_string(strip_tags($value))];
 		}
 	}
 
