@@ -1,0 +1,41 @@
+<?php
+error_reporting(E_ALL);
+
+$CONF = $TMPL = array();
+//print_r($_SERVER);
+// The MySQL credentials
+$CONF['host'] = 'localhost';
+$CONF['user'] = 'nhinnhauhoai2018';
+$CONF['pass'] = 'TaiNga88';
+$CONF['name'] = 'nhinnhau1lan2018';
+$CONF['ROOTPATH'] = $_SERVER['DOCUMENT_ROOT'].'/';
+// The Installation URL
+$CONF['url'] = 'http://coichung.org';
+
+// The Notifications e-mail
+$CONF['email'] = 'notifications@coichung.org';
+
+// The themes directory
+$CONF['theme_path'] = 'themes';
+
+// The plugins directory
+$CONF['plugin_path'] = 'plugins';
+
+$action = array('admin'			=> 'admin',
+'onlineusers'	=>	'onlineusers',
+				'feed'			=> 'feed',
+				'settings'		=> 'settings',
+				'messages'		=> 'messages',
+				'post'			=> 'post',
+				'recover'		=> 'recover',
+				'profile'		=> 'profile',
+				'notifications'	=> 'notifications',
+				'search'		=> 'search',
+				'group'			=> 'group',
+				'page'			=> 'page',
+				'info'			=> 'info',
+				'footerpages'   => 'footerpages'
+				);
+
+define('COOKIE_PATH', preg_replace('|https?://[^/]+|i', '', $CONF['url']).'/');
+?>
