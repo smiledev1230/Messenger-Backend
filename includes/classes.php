@@ -452,7 +452,7 @@ class register {
 			$suspended = '0';
 		}
 
-		$query = sprintf("INSERT INTO `users` (`username`, `password`, `first_name`, `last_name`, `email`, `phone`,`date`, `image`, `privacy`, `cover`, `verified`, `online`, `salted`, `suspended`, `ip`, `notificationl`, `notificationc`, `notifications`, `notificationd`, `notificationf`, `notificationg`, `notificationx`, `notificationp`, `notificationm`, `email_comment`, `email_like`, `email_new_friend`, `email_page_invite`, `email_group_invite`, `email_mention`, `sound_new_notification`, `sound_new_chat`) VALUES ('%s','%s','%s', '%s', '%s', '%s', '%s', '%s', '%s', 'default.png', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');", $this->db->real_escape_string(mb_strtolower($this->username)), $this->password, $this->db->real_escape_string($this->first_name), $this->db->real_escape_string($this->last_name), $this->db->real_escape_string($this->email),$this->db->real_escape_string($this->phone), date("Y-m-d H:i:s"), (isset($this->profile_image) ? $this->profile_image : 'default.png'), 1, $this->verified, time(), $salt, $suspended, $this->db->real_escape_string(getUserIp()), 1, 1, 1, 1, 1, 1, 1, 1, 1, $this->email_comment, $this->email_like, $this->email_new_friend, $this->email_page_invite, $this->email_group_invite, $this->email_mention, 1, 1);
+		$query = sprintf("INSERT INTO `users` (`username`, `password`, `first_name`, `last_name`, `email`, `date`, `image`, `privacy`, `cover`, `verified`, `online`, `salted`, `suspended`, `ip`, `notificationl`, `notificationc`, `notifications`, `notificationd`, `notificationf`, `notificationg`, `notificationx`, `notificationp`, `notificationm`, `email_comment`, `email_like`, `email_new_friend`, `email_page_invite`, `email_group_invite`, `email_mention`, `sound_new_notification`, `sound_new_chat`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', 'default.png', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');", $this->db->real_escape_string(mb_strtolower($this->username)), $this->password, $this->db->real_escape_string($this->first_name), $this->db->real_escape_string($this->last_name), $this->db->real_escape_string($this->email), date("Y-m-d H:i:s"), (isset($this->profile_image) ? $this->profile_image : 'default.png'), 1, $this->verified, time(), $salt, $suspended, $this->db->real_escape_string(getUserIp()), 1, 1, 1, 1, 1, 1, 1, 1, 1, $this->email_comment, $this->email_like, $this->email_new_friend, $this->email_page_invite, $this->email_group_invite, $this->email_mention, 1, 1);
 		$this->db->query($query);
 
 		// If the account needs to be activated
@@ -506,8 +506,7 @@ class User {
             }
 		} elseif($type) {
 			$auth = $this->get();
-			//print_r($auth); 
-			$uid=$auth['idu'];
+
 			if(password_verify($this->password, $auth['password'])) {
 				if($auth['suspended'] == 2) {
 					return sprintf($LNG['account_not_activated'], $this->url.'/index.php?a=welcome&activate=resend&username='.$this->username);
@@ -521,10 +520,7 @@ class User {
 				}
 				$_SESSION['username'] = $auth['username'];
 				$_SESSION['password'] = $auth['password'];
-				$stmt = $this->db->prepare("UPDATE `users` set status=1 WHERE `idu` = '{$this->db->real_escape_string($uid)}'");
 
-				// Execute the statement
-					$stmt->execute();
 				$logged = true;
 				session_regenerate_id();
 			} else {
@@ -718,13 +714,11 @@ class updateSettings {
 				}
 			}
 		}
-		
+
 		return $output;
 	}
 
 	function query_array($table, $data) {
-			
-		//print_r($data);die;
 		// Verify if the user has a valid token
 		if($data['token_id'] == $_SESSION['token_id']) {
 			unset($data['token_id']);
@@ -738,13 +732,13 @@ class updateSettings {
 				// Set a flag to notify that the logo has been changed
 				$logo = true;
 			}
-				
+
 			// Truncate any extra characters
 			$data = array_merge($data, $this->truncate_data($data));
-			
+
 			// Get the columns of the query-ed table
 			$available = $this->getColumns($table);
-			
+
 			if($table == 'admin') {
 				if(isset($data['password']) && !isset($data['current_password']) || isset($data['current_password']) && !$this->validate_password($data['current_password'])) {
 					return 2;
@@ -760,7 +754,7 @@ class updateSettings {
 
 				unset($data['repeat_password'], $data['current_password']);
 			}
-			
+
 			foreach ($data as $key => $value) {
 				// Check if all arrays introduced are available table fields
 				if(!array_key_exists($key, $available)) {
@@ -769,16 +763,13 @@ class updateSettings {
 				}
 			}
 
-			
-			
-			
 			// If all array keys are valid database columns
             if(isset($x) == false) {
 				foreach ($data as $column => $value) {
 					$columns[] = sprintf("`%s` = '%s'", $column, $this->db->real_escape_string($value));
 				}
 				$column_list = implode(',', $columns);
-				
+
 				// Prepare the database for specific page
 				if($table == 'admin') {
 					// Prepare the statement
@@ -787,7 +778,6 @@ class updateSettings {
 					$stmt->bind_param("ss", $password, $_SESSION['adminUsername']);
 					$_SESSION['adminPassword'] = $password;
 				} else {
-					
 					// Prepare the statement
 					$stmt = $this->db->prepare("UPDATE `$table` SET $column_list");
 				}
@@ -949,33 +939,6 @@ class updateSettings {
 		}
 
 		return $output;
-	}
-	
-	function addAdminUser($table,$values) {
-		global $CONF, $LNG;
-		
-	
-		$this->db->query(sprintf("INSERT INTO `adminusers` (`username`,`password`, `dashboard`, `site_settings`, `themes`,`plugins`, `languages`, `statistics`, `manage_users`,`manage_pages`, `manage_groups`, `manage_reports`, `manage_ads`,`info_pages`,`status`) VALUES ('%s', '%s', '%s', '%s','%s', '%s', '%s', '%s','%s', '%s', '%s', '%s','%s', '%s', '%s')",
-			$this->db->real_escape_string($values['username']),
-			$this->db->real_escape_string(md5($values['password'])),
-			$this->db->real_escape_string($values['dashboard']),
-			$this->db->real_escape_string($values['site_settings']),
-			$this->db->real_escape_string($values['themes']),
-			$this->db->real_escape_string($values['plugins']),
-			$this->db->real_escape_string($values['languages']),
-			$this->db->real_escape_string($values['statistics']),
-			$this->db->real_escape_string($values['manage_users']),
-			$this->db->real_escape_string($values['manage_pages']),
-			$this->db->real_escape_string($values['manage_groups']),
-			$this->db->real_escape_string($values['manage_reports']),
-			$this->db->real_escape_string($values['manage_ads']),
-			$this->db->real_escape_string($values['info_pages']),
-			$this->db->real_escape_string($values['status'])			
-			));
-
-
-
-		return true;
 	}
 
 	function createInfoPage($values, $type) {
@@ -1213,7 +1176,6 @@ class updateUserSettings {
 	}
 
 	function query_array($table, $data) {
-		
 		global $LNG;
 		// Verify if the user has a valid token
 		if(isset($data['token_id']) && $data['token_id'] == $_SESSION['token_id']) {
@@ -1291,7 +1253,7 @@ class updateUserSettings {
 
 				// Execute the statement
 				$stmt->execute();
-				
+
 				// Save the affected rows
 				$affected = $stmt->affected_rows;
 
@@ -1579,69 +1541,9 @@ class manageUsers {
 		}
 	}
 
-	
-	function getNextPost($id,$userid) {
-		
-			$query = sprintf("SELECT * FROM `messages` WHERE `id` < '%s' and uid=$userid  order by  id desc limit 1", $this->db->real_escape_string($id));
-	
-		$result = $this->db->query($query);
-
-		// If the user exists
-		if($result->num_rows > 0) {
-
-			$row = $result->fetch_assoc();
-
-			return $row;
-		} else {
-			return false;
-		}
-	}
-	function getPrevPost($id,$userid) {
-		
-			$query = sprintf("SELECT * FROM `messages` WHERE `id` > '%s' and uid=$userid  order by  id asc limit 1", $this->db->real_escape_string($id));
-	
-		$result = $this->db->query($query);
-
-		// If the user exists
-		if($result->num_rows > 0) {
-
-			$row = $result->fetch_assoc();
-
-			return $row;
-		} else {
-			return false;
-		}
-	}
-	function getAllImages($id,$userid) {
-		
-		
-		$qc="SELECT *  FROM users WHERE username='".$userid."'";
-				$result = $this->db->query($qc);
-				$dataprofile=$result->fetch_array();
-				$useridm=$dataprofile['idu'];
-				
-		
-			$query = sprintf("SELECT * FROM `messages` WHERE  uid=$useridm  and type='picture' order by  id ");
-	
-		$result = $this->db->query($query);
-
-		// If the user exists
-		if($result->num_rows > 0) {
-$dataarr=array();
-			while($row = $result->fetch_assoc()){
-				
-				$dataarr[]=$row;
-			}	;
-
-			return $dataarr;
-		} else {
-			return false;
-		}
-	}
-	
 	function deleteUser($id) {
-		// Prepare the statement to  the user from the database
-		$stmt = $this->db->prepare("UPDATE `users` set status=2 WHERE `idu` = '{$this->db->real_escape_string($id)}'");
+		// Prepare the statement to delete the user from the database
+		$stmt = $this->db->prepare("DELETE FROM `users` WHERE `idu` = '{$this->db->real_escape_string($id)}'");
 
 		// Execute the statement
 		$stmt->execute();
@@ -1767,70 +1669,6 @@ $dataarr=array();
 		}
 	}
 }
-
-
-class userUpdates
-{
-
-	public $db;			// Database Property
-	public $url;		// Installation URL Property
-	public $per_page;	// Limit per page
-
-
-
-/* Users Background Details */
- function userDetails($user_id)
-{
-	$result = $this->db->query("SELECT *  FROM users WHERE idu='$user_id'");
-	$data=$result->fetch_array();
-	return $data;
-}
-
-
-
-/* Intro Tour Check */
- function userBackgroundUpdate($user_id,$actual_image_name)
-{
-	$stmt = $this->db->prepare("UPDATE `users` set cover='{$this->db->real_escape_string($actual_image_name)}' WHERE `username` = '{$this->db->real_escape_string($user_id)}'");
-	//echo "UPDATE `users` set cover=$actual_image_name' WHERE `username` = $user_id";
-		// Execute the statement
-		$stmt->execute();
-
-		// Save the affected rows
-		$affected = $stmt->affected_rows;
-
-		// Close the statement
-		$stmt->close();
-
-		// If the user was returned
-		if($affected) {
-
-	return true;
-		}
-		return false;
-	
-	
-}
-
-/* Intro Tour Check */
- function userBackgroundPositionUpdate($user_id,$position)
-{  
-
-
-	$result = $this->db->query("UPDATE users SET profile_background_position='$position' WHERE username='$user_id'");	
-	return $result;
-}
-
- function userProfileUpdate($user_id,$pimage)
-{  
-
-// "UPDATE users SET image='$pimage' WHERE username='$user_id'";
-	$result = $this->db->query("UPDATE users SET image='$pimage' WHERE username='$user_id'");	
-	return $result;
-}
-
-}
-
 class manageReports {
 	public $db;			// Database Property
 	public $url;		// Installation URL Property
@@ -1972,169 +1810,7 @@ class feed {
 	public $smiles;				// The admin settings for displaying smiles in messages
 	public $pages_limit;		// The maximum amount of pages a user can create
 	public $groups_limit;		// The maximum amount of groups a user can create
-	function getUser($id, $profile = null) {
-		if($profile) {
-			$query = sprintf("SELECT `idu`, `username`, `email`, `first_name`, `last_name`, `location`, `website`, `bio`, `facebook`, `twitter`, `gplus`, `born`,`image`, `verified` FROM `users` WHERE `username` = '%s' AND `suspended` != 2", $this->db->real_escape_string($profile));
-		} else {
-			$query = sprintf("SELECT `idu`, `username`, `email`, `first_name`, `last_name`, `location`, `website`, `bio`, `facebook`, `twitter`, `gplus`, `born`,`image`, `verified` FROM `users` WHERE `idu` = '%s' AND `suspended` != 2", $this->db->real_escape_string($id));
-		}
-		$result = $this->db->query($query);
 
-		// If the user exists
-		if($result->num_rows > 0) {
-
-			$row = $result->fetch_assoc();
-
-			return $row;
-		} else {
-			return false;
-		}
-	}
-
-	 /**
-   * Get a list of suggested friends for the current user.
-   */
-   function getFriendSuggestions($userId) {
-	   global $CONF, $LNG;
-    //$userId = $this->loggedInUser->getUserId();
-   $friends = $this->getFriends($userId);
-  // print_r($friends);
-	//	$friendslist = $this->getFriendsList(1);
-    $suggestedFriends = [];
-	$finalfriendId	=[];
-     foreach ($friends as $finalfriendIds) {
-		if($finalfriendIds['user1']!=$userId){
-			$finalfriendId[]=$finalfriendIds['user1'];
-		}else if($finalfriendIds['user2']!=$userId){
-			$finalfriendId[]=$finalfriendIds['user2'];
-		}	 
-		 
-	 }	 
-    foreach ($friends as $friendIds) {
-		if($friendIds['user1']!=$userId){
-			$friendId=$friendIds['user1'];
-		}else if($friendIds['user2']!=$userId){
-			$friendId=$friendIds['user2'];
-		}	
-	 
-      # Friends friends list.
-      $ff_list = $this->getFriends($friendId);
-     //  echo "rm";
-      foreach ($ff_list as $ffriendIds) {
-		 $ffriendId='';
-		 if($ffriendIds['user1']!=$friendId){
-			$ffriendId=$ffriendIds['user1'];
-		}else if($ffriendIds['user2']!=$friendId){
-			$ffriendId=$ffriendIds['user2'];
-		}	
-				
-        # If the friendsFriend(ff) is not us, and not our friend, he can be suggested
-        if ($ffriendId != $userId && !in_array($ffriendId, $finalfriendId)) {
-           
-          # The key is the suggested friend
-          $suggestedFriends[$ffriendId] = ['mutual_friends' => []];
-          $ff_friends = $this->getFriends($ffriendId);
-        //  print_r($ff_friends);
-          foreach ($ff_friends as $ff_friendIds) {
-			  
-			  if($ff_friendIds['user1']!=$ffriendId){
-			$ff_friendId=$ff_friendIds['user1'];
-		}else if($ff_friendIds['user2']!=$ffriendId){
-			$ff_friendId=$ff_friendIds['user2'];
-		}	
-			 
-            if (in_array($ff_friendId, $finalfriendId)) {
-              # If he is a friend of the current user, he is a mutual friend
-              $suggestedFriends[$ffriendId]['mutual_friends'][] = $ff_friendId;
-            }
-          }
-          
-        }
-      }
-      
-    }
-     // print_r($suggestedFriends);die;
-    # Convert the friend id's to user objects.
-    $suggestedFriendObjs = array();
-    if (!empty($suggestedFriends)) {
-      foreach ($suggestedFriends as $suggestedFriend => $mutualFriends) {
-		   //print_r($suggestedFriend);
-        $suggestedFriendObj = new stdClass();
-        $suggestedFriendObj->suggestedUser = $this->getUser($suggestedFriend);
-        
-        if (!empty($mutualFriends)) {
-          $mutualFriendObjs = [];
-          foreach ($mutualFriends['mutual_friends'] as $mutualFriend) {
-            $mutualFriendObjs[] =  $this->getUser($mutualFriend);
-          }
-        }
-        
-        $suggestedFriendObj->mutualFriends = $mutualFriendObjs;
-        $suggestedFriendObjs[] = $suggestedFriendObj;
-      }
-    }
-	$htmlfinal='';
-	if(count($suggestedFriendObjs)>0){
-	$htmlfinal.='<div class="message-container" >
-				<div class="message-content">
-				<div class="message-form-header">
-				People You May Know <span style="float:right"><a href=""></a></span>
-				
-				</div>
-			
-					<div class="message-inner"> <div id="carouselh">';
-					$totalcount=0;
-	foreach($suggestedFriendObjs as $suggestedUser1){
-		
-		if(isset($suggestedUser1->suggestedUser[0]['idu'])){
-			foreach($suggestedUser1->suggestedUser as $suggestedUser2){
-				$profile_url=permalink($CONF['url'].'/index.php?a=profile&u=');
-				$profile_url.=$suggestedUser2['username'];
-				$thumb_url=permalink($CONF['url'].'/thumb.php?t=a&amp;w=200&amp;h=200&src=');
-				$thumb_url.=$suggestedUser2['image'];
-				$fid=$suggestedUser2['idu'];
-				if($totalcount<8){
-				$htmlfinal.=' <div class="boxshad">
-
-                                <img alt="" src="'.$thumb_url.'" /><br />
-
-                                <span class="thumbnail-text">
-								<a href="'.$profile_url.'" rel="loadpage">'.$suggestedUser2['first_name'].' '.$suggestedUser2['last_name'].'</a>
-								
-								
-								</span><div id="friend'.$fid.'" class="friend-btn"><div class="friend-button" title="Add as friend" onclick="friend('.$fid.', 1)"></div></div></div>';	
-				}				
-				$totalcount++;				
-			}	
-			
-		}else{
-			$suggestedUser2=$suggestedUser1->suggestedUser;
-			$profile_url=permalink($CONF['url'].'/index.php?a=profile&u=');
-				$profile_url.=$suggestedUser2['username'];
-				$thumb_url=permalink($CONF['url'].'/thumb.php?t=a&amp;w=200&amp;h=200&src=');
-				$thumb_url.=$suggestedUser2['image'];
-				$fid=$suggestedUser2['idu'];
-				if($totalcount<8){
-			$htmlfinal.=' <div class="boxshad">
-							<img alt="" src="'.$thumb_url.'" /><br />
-
-                                <span class="thumbnail-text"><a href="'.$profile_url.'" rel="loadpage">'.$suggestedUser2['first_name'].' '.$suggestedUser2['last_name'].'</a></span>								
-								<div id="friend'.$fid.'" class="friend-btn"><div class="friend-button" title="Add as friend" onclick="friend('.$fid.', 1)"></div></div>
-								</div>';	
-				}				
-			
-			$totalcount++;
-		}	
-		
-	}
-$htmlfinal.='</div></div></div></div>';	
-	}
-
-    return $htmlfinal;
-  }
-	
-	
-	
 	function getMessages($query, $type, $typeVal) {
 		// QUERY: Holds the query string
 		// TYPE: [loadFeed, loadProfile, loadHashtags]
@@ -2306,8 +1982,6 @@ $htmlfinal.='</div></div></div></div>';
 			$profile_name = (isset($this->page_data['by']) && $row['idu'] == $this->page_data['by'] ? $this->page_data['title'] : realName($row['username'], $row['first_name'], $row['last_name']));
 			$page = isset($this->page_data['id']) && $this->page_data['id'] ? 1 : 0;
 			$row['idu'] = isset($this->page_data['id']) && $this->page_data['id'] ? $this->page_data['id'] : $row['idu'];
-			
-		
 			$messages .= '
 			<div class="message-container last-message" id="message'.$row['id'].'" data-filter="'.str_replace('\'', '', $typeVal) .'" data-last="'.$row['id'].'" data-username="'.$this->profile.'" data-type="'.$dataType.'" data-userid="'.$row['uid'].'">
 				<div class="message-content">
@@ -2375,242 +2049,6 @@ $htmlfinal.='</div></div></div></div>';
 		}
 		return array($messages, 0);
 	}
-	
-		function getMessagesSide($query, $type, $typeVal) {
-		// QUERY: Holds the query string
-		// TYPE: [loadFeed, loadProfile, loadHashtags]
-		// TYPEVAL: Values for the JS functions
-		global $LNG;
-
-		// Run the query
-		$result = $this->db->query($query);
-
-		// Set the result into an array
-		$rows = array();
-		while($row = $result->fetch_assoc()) {
-			$rows[] = $row;
-		}
-
-		
-		// Define the $loadmore variable
-		$loadmore = '';
-
-		// If there are more results available than the limit, then show the Load More Comments
-		if(array_key_exists($this->per_page, $rows)) {
-			$loadmore = 1;
-
-			// Unset the last array element because it's not needed, it's used only to predict if the Load More Messages should be displayed
-			array_pop($rows);
-		}
-
-		// Define the $messages variable
-		$messages = $extra = '';
-
-		// If it's set profile, then set $profile
-		if(isset($this->profile) && $this->profile) {
-			$extra = ', \''.$this->profile.'\'';
-		} elseif(isset($this->hashtags) && $this->hashtags) {
-			$extra  = ', \''.$this->hashtags.'\'';
-		}
-
-		// Start outputting the content
-		$i = 0;
-		foreach($rows as $row) {
-			$po = '';
-			foreach($this->plugins as $plugin) {
-				if(array_intersect(array("7"), str_split($plugin['type']))) {
-					$po .= plugin($plugin['name'], array('message' => $row['message'], 'id' => $row['id'], 'type' => $row['type'], 'value' => $row['value'], 'user_id' => $this->id), 1);
-				}
-			}
-			// If the request is being made from groups
-			if(isset($this->group_data['id']) && $this->group_data['id']) {
-				// Add the latest viewed message on the group
-				if($i == 0 && $this->group_member_data['status'] == 1) {
-					// If the user is a member of the group
-					$this->groupActivity(1, $row['id']);
-				}
-			}
-			$time = $row['time']; $b = '';
-			if($this->time == '0') {
-				$time = date("c", strtotime($row['time']));
-			} elseif($this->time == '2') {
-				$time = $this->ago(strtotime($row['time']));
-			} elseif($this->time == '3') {
-				$date = strtotime($row['time']);
-				$time = date('Y-m-d', $date);
-				$b = '-standard';
-			}
-
-			// Define the style variable (resets the last value)
-			$style = '';
-			if($row['public'] == 1) {
-				$public = '<div class="privacy-icons public-icon" title="'.$LNG['public'].'"></div>';
-			} elseif($row['public'] == 2) {
-				$public = '<div class="privacy-icons friends-icon" title="'.$LNG['friends'].'"></div>';
-			} else {
-				$public = '<div class="privacy-icons private-icon" title="'.$LNG['private'].'"></div>';
-				$style = ' style="display: none"';
-			}
-			if(empty($this->username)) {
-				$menu = '';
-				$style = ' style="display: none"';
-			} else {
-				$menulist = '<a href="'.permalink($this->url.'/index.php?a=post&m='.$row['id']).'" target="_blank"><div class="message-menu-row">'.$LNG['show_in_tab'].'</div></a>
-				<div class="message-menu-divider"></div>';
-
-				if($this->username == $row['username']) {
-					$menulist .= '
-					<div class="message-menu-row" onclick="edit_message('.$row['id'].')" id="edit_text'.$row['id'].'">'.$LNG['edit'].'</div>
-					<div class="message-menu-row" onclick="deleteModal('.$row['id'].', 1)">'.$LNG['delete'].'</div>
-					'.($row['group'] ? '' : '<div class="message-menu-divider"></div>
-					<div class="message-menu-row" onclick="privacy('.$row['id'].', 1)">'.$LNG['public'].'</div>
-					<div class="message-menu-row" onclick="privacy('.$row['id'].', 2)">'.$LNG['friends'].'</div>
-					<div class="message-menu-row" onclick="privacy('.$row['id'].', 0)">'.$LNG['private'].'</div>');
-				} else {
-					$menulist .= '<div class="message-menu-row" onclick="report_the('.$row['id'].', 1)">'.$LNG['report'].'</div>';
-				}
-
-				$grouplist = '';
-				if($row['group'] && in_array($this->group_member_data['permissions'], array(1, 2)) && $this->id != $row['idu']) {
-					$grouplist = '
-					<div class="message-menu-divider"></div>
-					<div class="message-menu-row" onclick="group(2, '.$row['id'].', '.$row['group'].', '.$row['uid'].', \'\')">'.$LNG['delete_message'].'</div>
-					<div class="message-menu-row" onclick="group(0, 0, '.$row['group'].', '.$row['uid'].', '.$row['id'].')">'.$LNG['remove_user'].'</div>
-					';
-				}
-				$menu = '
-				<div class="message-menu" onclick="messageMenu('.$row['id'].', 1)"></div>
-				<div id="message-menu'.$row['id'].'" class="message-menu-container">
-					'.$menulist.'
-					'.$grouplist.'
-				</div>';
-			}
-
-			$shared_title = $sharedMedia = $sharedContent = $group_title = $getPage = $this->page_data = '';
-			if($row['group']) {
-				$dataType = 2;
-				// If the message is viewed from the post page
-				if(isset($this->is_post_page)) {
-					$getGroup = $this->db->query(sprintf("SELECT * FROM `groups` WHERE `id` = '%s'", $row['group']));
-					$group = $getGroup->fetch_assoc();
-					// If the group is private, check the privacy
-					if($group['privacy'] && $this->is_admin == 0) {
-						$this->group_member_data = $this->groupMemberData($group['id']);
-						if(!$this->groupPermission($group, $this->group_member_data)) {
-							header('Location: '.permalink($this->url.'/index.php?a=group&name='.$group['name']));
-						}
-					}
-					$group_title = ' '.sprintf($LNG['group_title'], permalink($this->url.'/index.php?a=group&name='.$group['name']), $group['title']);
-				}
-			} elseif($row['page']) {
-			    $dataType = 3;
-            } elseif($this->profile) {
-				$dataType = 1;
-			} else {
-				$dataType = 0;
-			}
-
-			if($row['type'] == 'shared') {
-				$getOriginal = $this->db->query(sprintf("SELECT * FROM `messages`, `users` WHERE `messages`.`id` = '%s' AND `messages`.`uid` = `users`.`idu`", $row['value']));
-				$shared = $getOriginal->fetch_assoc();
-
-				// If the shared message is from a page
-				if($shared['page']) {
-					$getPage = $this->pageData(null, $shared['page']);
-				}
-				// If the original message is public (anyone can see it)
-				if($shared['public'] == 1) {
-					// Include the media output
-					$sharedContent = $shared['message'];
-					$sharedMedia = $this->getMessageType($shared['type'], $shared['value'], 0);
-				} else {
-					// If the message is private, only display half of the message's content
-					$countLetters = round(strlen($shared['message']) / 2);
-					$sharedContent = ($shared['message'] ? substr($shared['message'], 0, $countLetters).'...' : '');
-				}
-
-				$shared_url = (isset($getPage['name']) && $getPage['name'] ? permalink($this->url.'/index.php?a=page&name='.$getPage['name']) : permalink($this->url.'/index.php?a=profile&u='.$shared['username']));
-				$shared_ttl = (isset($getPage['name']) && $getPage['name'] ? $getPage['title'] : realName($shared['username'], $shared['first_name'], $shared['last_name']));
-
-				$shared_title = ' '.sprintf($LNG['shared_title'], $shared_url, $shared_ttl, permalink($this->url.'/index.php?a=post&m='.$row['value']));
-			}
-			// If is not on a "Page" page, but the post is from a page
-			if(empty($this->page_data['name']) && $row['page']) {
-				$this->page_data = $this->pageData(null, $row['page']);
-			}
-			$profile_url = (isset($this->page_data['by']) && $row['idu'] == $this->page_data['by'] ? permalink($this->url.'/index.php?a=page&name='.$this->page_data['name']) : permalink($this->url.'/index.php?a=profile&u='.$row['username']));
-			$profile_img = permalink((isset($this->page_data['by']) && $row['idu'] == $this->page_data['by'] ? $this->url.'/thumb.php?t=a&w=50&h=50&src='.$this->page_data['image'] : $this->url.'/thumb.php?t=a&w=50&h=50&src='.$row['image']));
-			$profile_name = (isset($this->page_data['by']) && $row['idu'] == $this->page_data['by'] ? $this->page_data['title'] : realName($row['username'], $row['first_name'], $row['last_name']));
-			$page = isset($this->page_data['id']) && $this->page_data['id'] ? 1 : 0;
-			$row['idu'] = isset($this->page_data['id']) && $this->page_data['id'] ? $this->page_data['id'] : $row['idu'];
-			
-		
-			$messages .= '
-			<div style="padding-right:50px;" class="message-container last-message" id="message'.$row['id'].'" data-filter="'.str_replace('\'', '', $typeVal) .'" data-last="'.$row['id'].'" data-username="'.$this->profile.'" data-type="'.$dataType.'" data-userid="'.$row['uid'].'">
-				<div class="message-content">
-				
-					<div class="message-divider"></div>
-					'.$po.'
-					<div class="message-replies">
-						<div class="message-actions"><div class="message-actions-content" id="message-action-pop'.$row['id'].'">'.$this->getActions($row['id'], $row['likes'], $row['comments'], $row['shares']).'</div></div>
-						<div class="message-replies-content" id="comments-list-pop'.$row['id'].'">
-							'.$this->getComments($row['id'], null, $this->c_start, ($this->id == $row['uid'] ? 1 : 0)).'
-						</div>
-					</div>
-					<div class="message-comment-box-container" id="comment_box_'.$row['id'].'"'.$style.'>
-						<div class="message-reply-avatar">
-							'.((!empty($this->user)) ? '<img src="'.permalink($this->url.'/thumb.php?t=a&w=50&h=50&src='.(isset($this->page_data['by']) && $this->id == $this->page_data['by'] ? $this->page_data['image'] : $this->user['image']).'">') : '').'
-						</div>
-						<div class="message-comment-box-form">
-							<textarea id="comment-form-pop'.$row['id'].'" onclick="showButton('.$row['id'].')" placeholder="'.$LNG['leave_comment'].'" class="comment-reply-textarea"></textarea>
-							<label for="commentimage'.$row['id'].'" class="c-w-icon c-w-icon-picture comment-image-btn" title="'.$LNG['chat_picture'].'" data-active-comment="'.$row['id'].'"></label>
-						</div>
-						<div class="comments-buttons">
-							<div id="comments-controls-pop'.$row['id'].'" class="comments-controls" >
-								<div class="comment-btn button-active">
-									<a id="post-comment-pop" onclick="postCommentPop('.$row['id'].')">'.$LNG['post'].'</a>
-								</div>
-								<div id="queued-comment-files'.$row['id'].'"></div>
-							</div>
-							<input type="file" name="commentimage" id="commentimagepop'.$row['id'].'" style="display: none;" accept="image/*">
-						</div>
-						<div class="delete_preloader" id="post_comment_pop_'.$row['id'].'"></div>
-					</div>
-				</div>	
-			</div>';
-			$start = $row['id'];
-			$i++;
-		}
-
-		// If the $loadmore button is set, then show the Load More Messages button
-		if($loadmore) {
-			$messages .= '<div class="load_more" id="more_messages"><a onclick="'.$type.'('.$start.', '.$typeVal.''.$extra.')" id="load-more">'.$LNG['view_more_messages'].'</a></div>';
-		}
-		return array($messages, 0);
-	}
-	function getFeedSide($postid) {
-		// From: Load posts starting with a certain ID
-
-		$this->friends = $this->getFriendsList();
-		$this->pages = $this->getPagesList();
-
-		if(!empty($this->friends)) {
-			$this->friendsList = $this->id.','.$this->friends;
-		} else {
-			$this->friendsList = $this->id;
-		}
-
-		
-			$from = 'AND `messages`.`id` = \''.$this->db->real_escape_string($postid).'\'';
-		
-
-
-			$query = sprintf("SELECT * FROM `messages` USE INDEX(`news_feed`) LEFT JOIN `users` ON `users`.`idu` = `messages`.`uid` AND `users`.`suspended` = 0 WHERE `messages`.`page` = 0 AND `messages`.`group` = 0  %s",  $from);
-		
-
-		return $this->getMessagesSide($query, 'loadFeed','');
-	}
-
 
 	function getFeed($start, $value, $from = null) {
 		// From: Load posts starting with a certain ID
@@ -3092,9 +2530,9 @@ $htmlfinal.='</div></div></div></div>';
 		// The query to select the profile
 		// If the $id is set (used in Add Friend function for profiles) then search for the ID
 		if($id) {
-			$query = sprintf("SELECT `idu`, `username`, `email`, `first_name`, `last_name`, `country`, `location`, `address`, `school`, `work`, `website`, `bio`, `date`, `facebook`, `twitter`, `gplus`, `image`, `private`, `suspended`, `privacy`, `born`, `cover`, `verified`, `gender`, `interests`, `email_new_friend`, `offline`, `online`,`profile_background_position` FROM `users` WHERE `idu` = '%s'", $this->db->real_escape_string($id));
+			$query = sprintf("SELECT `idu`, `username`, `email`, `first_name`, `last_name`, `country`, `location`, `address`, `school`, `work`, `website`, `bio`, `date`, `facebook`, `twitter`, `gplus`, `image`, `private`, `suspended`, `privacy`, `born`, `cover`, `verified`, `gender`, `interests`, `email_new_friend`, `offline`, `online` FROM `users` WHERE `idu` = '%s'", $this->db->real_escape_string($id));
 		} else {
-			$query = sprintf("SELECT `idu`, `username`, `email`, `first_name`, `last_name`, `country`, `location`, `address`, `school`, `work`, `website`, `bio`, `date`, `facebook`, `twitter`, `gplus`, `image`, `private`, `suspended`, `privacy`, `born`, `cover`, `verified`, `gender`, `interests`, `email_new_friend`, `offline`, `online`,`profile_background_position` FROM `users` WHERE `username` = '%s'", $this->db->real_escape_string($username));
+			$query = sprintf("SELECT `idu`, `username`, `email`, `first_name`, `last_name`, `country`, `location`, `address`, `school`, `work`, `website`, `bio`, `date`, `facebook`, `twitter`, `gplus`, `image`, `private`, `suspended`, `privacy`, `born`, `cover`, `verified`, `gender`, `interests`, `email_new_friend`, `offline`, `online` FROM `users` WHERE `username` = '%s'", $this->db->real_escape_string($username));
 		}
 
 		// Run the query
@@ -3176,123 +2614,14 @@ $htmlfinal.='</div></div></div></div>';
 	}
 
 	function fetchProfile($profile) {
-		
 		global $LNG, $CONF;
 		$profile['cover'] = ((!empty($profile['cover'])) ? $profile['cover'] : 'default.png');
 		$profile['image'] = ((!empty($profile['image'])) ? $profile['image'] : 'default.png');
-		$profile['backgroundposition'] ='margin-top:-10px';
-		if($profile['cover']!='default.png'){
-		$profile['covernew'] = $CONF['url'].'/uploads/avatars/'.$profile['cover'];	
-		$profile['covernew'] = $CONF['url'].'/uploads/avatars/'.$profile['cover'];
-		//$profile['backgroundposition'] =$profile['profile_background_position'];
-		$profile['profile_background_position']=str_replace('px','',$profile['profile_background_position']);
-		$profile['profile_background_position']=$profile['profile_background_position']+(-70);
-		$profile['profile_background_position']=$profile['profile_background_position'].'px';
-		$profile['backgroundposition'] ='margin-top:'.$profile['profile_background_position'];
-			
-			
-		}	
-		$cover = '<style>
-*{margin:0px;padding:0px}
-body{font-family: Arial, Helvetica, sans-serif;background-color: #e9eaed;color: #333333;}
-#container{margin:0 auto;width:900px}
-#timelineContainer{width:100%;position:relative}
-#timelineBackground {
-height: 315px;
-position: relative;
-border-left: 1px solid #333333;
-border-right: 1px solid #333333;
-margin-top: 0px;
-overflow: hidden;
-background-color:#ffffff;
-}
-#timelineProfilePic {
-width: 170px;
-height: 170px;
-border: 1px solid #666666;
-background-color: #ffffff;
-position: absolute;
-margin-top: -145px;
-margin-left: 20px;
-z-index: 1000;
-overflow: hidden;
-}
-#timelineTitle {
-color: #ffffff;
-font-size: 24px;
-margin-top: -45px;
-position: absolute;
-margin-left: 206px;
-font-weight: bold;
-text-rendering: optimizelegibility;
-text-shadow: 0 0 3px rgba(0,0,0,.8);
-z-index: 999;
-text-transform: capitalize;
-}
-#timelineShade {
-min-height: 95px;
-position: absolute;
-margin-top: -95px;
-width: 100%;
-background:url(images/timeline_shade.png);
-}
-.timelineUploadBG {
-position: absolute;
-margin-top: 50px;
-margin-left: 537px;
-height: 32px;
-width: 32px;
-}
-#timelineNav {
-border: 1px solid #d6d7da;
-background-color: #ffffff;
-min-height: 43px;
-margin-bottom: 10px;
-position: relative;
-}
-.file-input-wrapper {
-            height: 172px;
-            margin: 2px;
-            overflow: hidden;
-            position: relative;
-            width: 172px;
-            
-            cursor: pointer;
-        }
-        .file-input-wrapper > input[type="file"] {
-            font-size: 40px;
-			 width: 172px;
-			 height: 172px;
-            position: absolute;
-            top: 0;
-            right: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-		.modal-header {
- 
-     display: block;  
-    
-    justify-content: space-between;
-    padding: 1rem;
-    border-bottom: 1px solid #e9ecef;
-    border-top-left-radius: .3rem;
-    border-top-right-radius: .3rem;
-}
-@media (min-width: 576px){
-.modal-dialog {
-    max-width: 650px;
-    margin: 1.75rem auto;
-}
-}
-*, ::after, ::before {
-    box-sizing: initial;
-}
-</style><div class="twelve columns">
+		$cover = '<div class="twelve columns">
 					<div class="cover-container">
 						<div class="cover-content">
-							<a id="'.$profile['cover'].'"><div id="timelineBackground"><img src="'.$profile['covernew'].'" class="bgImage" style="'.$profile['backgroundposition'].'"></div>
-							</a>
+							<a onclick="gallery(\''.$profile['cover'].'\', \''.$profile['idu'].$profile['username'].'\', \'covers\', 0)" id="'.$profile['cover'].'"><div class="cover-image" style="background-position: center; background-image: url('.permalink($this->url.'/thumb.php?t=c&w=900&h=200&src='.$profile['cover']).'">
+							</div></a>
 							<div class="cover-description">
 								<div class="cover-avatar-content">
 									<div class="cover-avatar">
@@ -3537,8 +2866,6 @@ position: relative;
         $social = $address = $website = $interests = $bio = $work = $school = $country = $birthdate = $gender = $aboutSection = $basicSection = $contactSection = $educationSection = $info = '';
 
 		// Contact Information section
-		//print_r($profile);
-		//print_r($_SESSION);
 		if($profile['country'] && $profile['location']) {
 			$country = $profile['location'].', '.$profile['country'];
 		} elseif($profile['country']) {
@@ -3551,11 +2878,7 @@ position: relative;
 			$address = $profile['address'];
 		}
 
-		if($_SESSION['username']==$profile['username']){
 		$location = (($address) ? '<div>'.$address.'</div>' : '').''.(($country) ? '<div>'.$country.'</div>' : '');
-		}else{
-		$location = (($country) ? '<div>'.$country.'</div>' : '');	
-		}	
 
 		if($profile['facebook'] || $profile['twitter'] || $profile['gplus']) {
 			$social .= ($profile['facebook']) ? '<div><a href="http://facebook.com/'.$profile['facebook'].'" target="_blank" rel="nofllow">Facebook</a></div>' : '';
@@ -3622,32 +2945,7 @@ position: relative;
 		if(!$aboutSection && !$basicSection && !$contactSection && !$educationSection) {
 			$info = $LNG['no_info_avail'];
 		}
-		
-		if($_SESSION['username']==$profile['username']){
-			$birtharr=explode(',',$birthdate);
 		$about = '
-		<div class="message-container">
-			<div class="message-content">
-				<div class="message-inner">
-					'.$info.'
-					'.(($contactSection) ? '<div><strong>'.$LNG['contact_information'].'</strong></div>					
-					'.(($website) 	? '<div class="about-row"><div class="about-text">'.$LNG['ttl_website'].'</div><div class="about-text">'.$website.'</div></div>' : '').'
-					'.(($social) 	? '<div class="about-row"><div class="about-text">'.$LNG['other_accounts'].'</div>'.$social.'</div>' : '').'<br>' : '').'
-					'.(($basicSection) ? '<div><strong>'.$LNG['basic_information'].'</strong></div>
-					'.(($gender)	? '<div class="about-row"><div class="about-text">'.$LNG['ttl_gender'].'</div><div class="about-text">'.$gender.'</div></div>' : '').'
-					'.(($birthdate)	? '<div class="about-row"><div class="about-text">'.$LNG['ttl_birthdate'].'</div><div class="about-text">'.$birtharr[0].'</div></div>' : '').'
-					'.(($interests) ? '<div class="about-row"><div class="about-text">'.$LNG['interests'].'</div><div class="about-text">'.$interests.'</div></div>' : '').'<br>' : '').'
-					'.(($educationSection) ? '<div><strong>'.$LNG['work_and_education'].'</strong></div>
-					'.(($work)		? '<div class="about-row"><div class="about-text">'.$LNG['works_at'].'</div><div class="about-text">'.$work.'</div></div>' : '').'
-					'.(($school) 	? '<div class="about-row"><div class="about-text">'.$LNG['studied_at'].'</div><div class="about-text">'.$school.'</div></div>' : '').'<br>' : '').'
-					'.(($aboutSection) ? '<div class="about-row"><strong>'.$LNG['about'].'</strong></div>
-					'.(($bio) ? '<div class="about-row"><div class="about-text">'.$LNG['ttl_bio'].'</div><div class="about-text">'.$bio.'</div></div>' : '') : '').'
-				</div>
-			</div>
-		</div>';
-		}else{
-			
-				$about = '
 		<div class="message-container">
 			<div class="message-content">
 				<div class="message-inner">
@@ -3658,6 +2956,7 @@ position: relative;
 					'.(($social) 	? '<div class="about-row"><div class="about-text">'.$LNG['other_accounts'].'</div>'.$social.'</div>' : '').'<br>' : '').'
 					'.(($basicSection) ? '<div><strong>'.$LNG['basic_information'].'</strong></div>
 					'.(($gender)	? '<div class="about-row"><div class="about-text">'.$LNG['ttl_gender'].'</div><div class="about-text">'.$gender.'</div></div>' : '').'
+					'.(($birthdate)	? '<div class="about-row"><div class="about-text">'.$LNG['ttl_birthdate'].'</div><div class="about-text">'.$birthdate.'</div></div>' : '').'
 					'.(($interests) ? '<div class="about-row"><div class="about-text">'.$LNG['interests'].'</div><div class="about-text">'.$interests.'</div></div>' : '').'<br>' : '').'
 					'.(($educationSection) ? '<div><strong>'.$LNG['work_and_education'].'</strong></div>
 					'.(($work)		? '<div class="about-row"><div class="about-text">'.$LNG['works_at'].'</div><div class="about-text">'.$work.'</div></div>' : '').'
@@ -3667,9 +2966,6 @@ position: relative;
 				</div>
 			</div>
 		</div>';
-			
-			
-		}	
 		return $about;
 	}
 
@@ -3746,7 +3042,7 @@ position: relative;
 			$LNG['works_at']			=> array('work', $work),
 			$LNG['studied_at']			=> array('school', $school),
 			$LNG['lives_in']			=> array('location', $country),
-			//$LNG['born_on']				=> array('calendar', $birthdate),
+			$LNG['born_on']				=> array('calendar', $birthdate),
 			$LNG['ttl_gender']			=> array(($profile['gender'] == 1 ? 'male' : 'female'), $gender),
 			$LNG['friends']				=> array('friends', $this->sidebarFriends(0, 1))
 		);
@@ -4626,7 +3922,7 @@ position: relative;
 
 				// Variable which contains the result
 				$comments .= '
-				<div class="message-reply-container" style="text-align:left;" id="comment'.$comment['id'].'">
+				<div class="message-reply-container" id="comment'.$comment['id'].'">
 					'.$menu.'
 					<div class="message-reply-avatar" id="avatar-c-'.$comment['id'].'">
 						<a href="'.permalink($this->url.'/index.php?a=profile&u='.$comment['username']).'" rel="loadpage"><img onmouseover="profileCard('.$comment['idu'].', '.$comment['id'].', 1, 0, 0)" onmouseout="profileCard(0, 0, 1, 1, 0);" onclick="profileCard(0, 0, 1, 1, 0);" src="'.permalink($this->url.'/thumb.php?t=a&w=50&h=50&src='.$comment['image']).'"></a>
@@ -4791,7 +4087,7 @@ position: relative;
 
 	function getMessageType($type, $value, $id) {
 		global $LNG, $CONF;
-		
+
 		$po = '';
 		foreach($this->plugins as $plugin) {
 			if(array_intersect(array("1"), str_split($plugin['type']))) {
@@ -4851,30 +4147,18 @@ position: relative;
 			case "picture":
 				$images = explode(',', $value);
 				$result = '';
-				//$userid=$this->id;
-				if(isset($_GET['u'])){
-				 $userid=$_GET['u'];
-				}else{
-				$userid=$_SESSION['username'];	
-				}	
-				
-				//$qc="SELECT *  FROM users WHERE username='".$username."'";
-				//$result = $this->db->query($qc);
-				//$dataprofile=$result->fetch_array();
-				//$userid=$dataprofile['idu'];
-				//print_r($dataprofile);
-				if(count($images) == 1) { 
-					$result .= '<div class="message-type-image event-picture"><a onclick="gallery(\''.$images[0].'\', '.$id.', \'media\', 1,\''.$userid.'\')" id="'.$images[0].'"><img src="'.permalink($this->url.'/thumb.php?t=m&w=650&h=300&src='.$images[0]).'"></a>';
+				if(count($images) == 1) {
+					$result .= '<div class="message-type-image event-picture"><a onclick="gallery(\''.$images[0].'\', '.$id.', \'media\', 1)" id="'.$images[0].'"><img src="'.permalink($this->url.'/thumb.php?t=m&w=650&h=300&src='.$images[0]).'"></a>';
 				} elseif(count($images) == 2) {
 					$result .= '<div class="message-type-image event-picture"><div class="image-container-padding">';
 					foreach($images as $image) {
-						$result .= '<a onclick="gallery(\''.$image.'\', '.$id.', \'media\', 1,\''.$userid.'\')" id="'.$image.'"><div class="image-thumbnail-container-half"><div class="image-thumbnail"><img src="'.permalink($this->url.'/thumb.php?t=m&w=300&h=300&src='.$image).'"></div></div></a>';
+						$result .= '<a onclick="gallery(\''.$image.'\', '.$id.', \'media\', 1)" id="'.$image.'"><div class="image-thumbnail-container-half"><div class="image-thumbnail"><img src="'.permalink($this->url.'/thumb.php?t=m&w=300&h=300&src='.$image).'"></div></div></a>';
 					}
 					$result .= '</div>';
 				} elseif(count($images) == 3) {
 					$result .= '<div class="message-type-image event-picture"><div class="image-container-padding">';
 					foreach($images as $image) {
-						$result .= '<a onclick="gallery(\''.$image.'\', '.$id.', \'media\', 1,\''.$userid.'\')" id="'.$image.'"><div class="image-thumbnail-container"><div class="image-thumbnail"><img src="'.permalink($this->url.'/thumb.php?t=m&w=200&h=200&src='.$image).'"></div></div></a>';
+						$result .= '<a onclick="gallery(\''.$image.'\', '.$id.', \'media\', 1)" id="'.$image.'"><div class="image-thumbnail-container"><div class="image-thumbnail"><img src="'.permalink($this->url.'/thumb.php?t=m&w=200&h=200&src='.$image).'"></div></div></a>';
 					}
 					$result .= '</div>';
 				} elseif(count($images) == 4 || count($images) > 4) {
@@ -4882,21 +4166,19 @@ position: relative;
 					$i = 1;
 					foreach($images as $image) {
 						if($i == 1) {
-							$result .= '<a onclick="gallery(\''.$image.'\', '.$id.', \'media\', 1,\''.$userid.'\')" id="'.$image.'"><div class="fake"><div class="image-thumbnail"><img src="'.permalink($this->url.'/thumb.php?t=m&w=650&h=300&src='.$image).'"></div></div></a>';
+							$result .= '<a onclick="gallery(\''.$image.'\', '.$id.', \'media\', 1)" id="'.$image.'"><div class="fake"><div class="image-thumbnail"><img src="'.permalink($this->url.'/thumb.php?t=m&w=650&h=300&src='.$image).'"></div></div></a>';
 						} else {
 							// If there are more than 4 images, hide them
 							if($i > 4) {
-								$result .= '<a onclick="gallery(\''.$image.'\', '.$id.', \'media\', 1,\''.$userid.'\')" id="'.$image.'" style="display: none;"></a>';
+								$result .= '<a onclick="gallery(\''.$image.'\', '.$id.', \'media\', 1)" id="'.$image.'" style="display: none;"></a>';
 							} else {
-								$result .= '<a onclick="gallery(\''.$image.'\', '.$id.', \'media\', 1,\''.$userid.'\')" id="'.$image.'"><div class="image-thumbnail-container"><div class="image-thumbnail">'.($i == 4 && count($images) > 4 ? '<span class="image-thumbnail-text">+ '.(count($images)-4).'</span>' : '').'<img src="'.permalink($this->url.'/thumb.php?t=m&w=200&h=200&src='.$image).'"></div></div></a>';
+								$result .= '<a onclick="gallery(\''.$image.'\', '.$id.', \'media\', 1)" id="'.$image.'"><div class="image-thumbnail-container"><div class="image-thumbnail">'.($i == 4 && count($images) > 4 ? '<span class="image-thumbnail-text">+ '.(count($images)-4).'</span>' : '').'<img src="'.permalink($this->url.'/thumb.php?t=m&w=200&h=200&src='.$image).'"></div></div></a>';
 							}
 						}
 						$i++;
 					}
 					$result .= '</div>';
 				}
-				
-		
 				return $result.'</div><div class="message-divider"></div>';
 				break;
 
@@ -5756,7 +5038,6 @@ position: relative;
 				$po .= plugin($plugin['name'], $data, 3);
 			}
 		}
-		
 
 		$output =	'<div class="message-container">
 						<div class="message-content">
@@ -6067,7 +5348,7 @@ position: relative;
 		// Close the statement
 		$stmt->close();
 		if($affected) {
-			return [$this->getChatMessages($uid, null, null, 1), $this->db->real_escape_string(strip_tags($value))];
+			return $this->getChatMessages($uid, null, null, 1);
 		}
 	}
 
@@ -8991,7 +8272,7 @@ function generateAd($content) {
 	if(empty($content)) {
 		return false;
 	}
-	$ad = '<div class="sidebar-container widget-ad"><div class="sidebar-content"><div class="sidebar-header"></div>'.$content.'</div></div>';
+	$ad = '<div class="sidebar-container widget-ad"><div class="sidebar-content"><div class="sidebar-header">'.$LNG['sponsored'].'</div>'.$content.'</div></div>';
 	return $ad;
 }
 function sortDateDesc($a, $b) {

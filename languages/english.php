@@ -33,8 +33,8 @@ $LNG['email'] = 'Email';
 $LNG['captcha'] = 'Captcha';
 $LNG['username_or_email'] = 'Username or email';
 $LNG['welcome_title'] = 'Welcome';
-$LNG['welcome_desc'] = 'to our social network';
-$LNG['welcome_about'] = 'share your memories, connect with others, make new friends.';
+$LNG['welcome_desc'] = 'to CTB our social network';
+$LNG['welcome_about'] = 'MERRY CHRISTMAS AND HAPPY NEW YEAR';
 $LNG['forgot_password'] = 'Forgot your password?';
 $LNG['remember_me'] = 'Remember me';
 $LNG['all_rights_reserved'] = 'All rights reserved';
@@ -461,7 +461,7 @@ $LNG['admin_ttl_manage_groups']		= $LNG['admin_menu_manage_groups'] 	= 'Manage G
 $LNG['admin_ttl_manage_reports']	= $LNG['admin_menu_manage_reports'] = 'Manage Reports';
 $LNG['admin_ttl_manage_ads']		= $LNG['admin_menu_manage_ads'] 	= 'Manage Ads';
 $LNG['admin_ttl_info_pages']		= $LNG['admin_menu_info_pages'] 	= 'Info Pages';
-$LNG['admin_ttl_addadmin']			= $LNG['admin_menu_addadmin'] 		= 'Add Admin User';
+
 $LNG['list_users'] = 'All Users';
 $LNG['list_moderators'] = 'Moderators';
 $LNG['list_verified'] = 'Verified';
@@ -915,7 +915,6 @@ $LNG['title_page'] = 'Create Page';
 $LNG['title_group'] = 'Create Group';
 $LNG['title_admin']	= 'Admin';
 $LNG['edit'] = 'Edit';
-$LNG['editsubmit'] = 'Save';
 $LNG['delete'] = 'Delete';
 $LNG['deactivate'] = 'Deactivate';
 $LNG['suspended'] = 'Suspended';
@@ -983,49 +982,4 @@ $LNG['month_9'] = 'September';
 $LNG['month_10'] = 'October';
 $LNG['month_11'] = 'November';
 $LNG['month_12'] = 'December';
-
-
-// footerpages
-$LNG['add_page'] = "Add page";
-$LNG['list_pages'] = "List pages";
-$LNG['back_to_admin'] = "Back to admin";
-$LNG['no_footer_pages'] = "No pages, yet.";
-$LNG['fp_confirm_delete'] = "Are you sure you want to delete this page permanently?";
-$LNG['fp_page_title'] = "Page title";
-$LNG['fp_create_page'] = "Create page"; // save button
-$LNG['edit_page'] = "Edit page";
-$LNG['fp_save_page'] = "Save page";
-$LNG['redir_info'] = "If you want to create a redirect, just write down the full URL, starting with http:// or https://, of the target, and nothing else, in the content editor.";
-$LNG['redirecting'] = "Redirecting...";
-
-
-$LNG['add_admin'] = 'Add Admin User';
-$LNG['add_admin_username'] = 'Username';
-$LNG['admin_Dashboard'] = 'Dashboard';
-$LNG['admin_sitesettings'] = 'Site Settings';
-$LNG['admin_themes'] = 'Themes';
-$LNG['admin_plugins'] = 'Plugins';
-$LNG['admin_languages'] = 'Languages';
-$LNG['admin_manage_users'] = 'Manage Users';
-$LNG['admin_manage_pages'] = 'Manage Pages';
-$LNG['admin_manage_groups'] = 'Manage Groups';
-$LNG['admin_manage_reports'] = 'Manage Reports';
-$LNG['admin_manage_ads'] = 'Manage Ads';
-$LNG['admin_info_pages'] = 'Info Pages';
-
-$LNG['admin_sub_dashboard'] = 'Enable access to dashboard';
-$LNG['admi_sub_sitesettings'] = 'Enable access to Site Settings';
-$LNG['admin_sub_themes'] = 'Enable access to themes ';
-$LNG['admin_sub_plugins'] = 'Enable access to Plugins';
-$LNG['admin_sub_languages'] = 'Enable access to  Languages';
-$LNG['admin_sub_manage_users'] = 'Enable access to Manage Users';
-$LNG['admin_sub_manage_pages'] = 'Enable access to  Manage Pages';
-$LNG['admin_sub_manage_groups'] = 'Enable access to Manage Groups';
-$LNG['admin_sub_manage_reports'] = 'Enable access to Manage Reports';
-$LNG['admin_sub_manage_ads'] = 'Enable access to Manage Ads';
-$LNG['admin_sub_info_pages'] = 'Enable access to Info Pages';
-
-
-$LNG['admin_status'] = 'Status';
-
 ?>

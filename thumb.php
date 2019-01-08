@@ -26,8 +26,8 @@ require_once('./includes/config.php');
 if(!empty($_GET['t'])) {
 	if($_GET['t'] == 'a') {
 		$type = 'uploads/avatars';
-		$width_list = array(25, 48, 50, 112,172, 150, 200);
-		$height_list = array(25, 48, 50, 112,172, 150, 200);
+		$width_list = array(25, 48, 50, 112, 150, 200);
+		$height_list = array(25, 48, 50, 112, 150, 200);
 		$quality_list = array(50, 75, 100);
 	} elseif($_GET['t'] == 'm') {
 		$type = 'uploads/media';
@@ -38,11 +38,6 @@ if(!empty($_GET['t'])) {
 		$type = 'uploads/covers';
 		$width_list = array(48, 300, 800, 900, 1000);
 		$height_list = array(48, 100, 200, 300);
-		$quality_list = array(50, 75, 100);
-	} elseif($_GET['t'] == 'cn') {
-		$type = 'uploads/avatars';
-		$width_list = array(48, 300, 800, 900, 1000);
-		$height_list = array(48, 100, 200, 300,315);
 		$quality_list = array(50, 75, 100);
 	} else {
 		exit('Invalid parameter value');
