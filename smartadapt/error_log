@@ -1,0 +1,28 @@
+[09-Jan-2019 07:11:31 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/w1tryy1z7z2t/public_html/smartadapt/index.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/w1tryy1z7z2t/public_html/smartadapt/index.php on line 10
+[09-Jan-2019 07:12:46 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/w1tryy1z7z2t/public_html/smartadapt/page.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/w1tryy1z7z2t/public_html/smartadapt/page.php on line 7
+[09-Jan-2019 07:26:52 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/w1tryy1z7z2t/public_html/smartadapt/single.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/w1tryy1z7z2t/public_html/smartadapt/single.php on line 6
+[09-Jan-2019 07:35:33 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/w1tryy1z7z2t/public_html/smartadapt/index.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/w1tryy1z7z2t/public_html/smartadapt/index.php on line 10
+[09-Jan-2019 08:14:20 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/w1tryy1z7z2t/public_html/smartadapt/index.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/w1tryy1z7z2t/public_html/smartadapt/index.php on line 10
+[09-Jan-2019 18:18:46 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/w1tryy1z7z2t/public_html/smartadapt/index.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/w1tryy1z7z2t/public_html/smartadapt/index.php on line 10
+[11-Jan-2019 17:36:33 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function get_header() in /home/w1tryy1z7z2t/public_html/smartadapt/index.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/w1tryy1z7z2t/public_html/smartadapt/index.php on line 10

@@ -10,7 +10,7 @@ class Database {
   function __construct(){
     global $CONF;
 
-    $this->database = new PDO('mysql:host=' . $CONF['host'] . ';dbname=' . $CONF['name'],  $CONF['user'], $CONF['pass']);
+    $this->database = new PDO('mysql:host=' . $CONF['host'] . ';dbname=' . $CONF['name'].';charset=UTF8',  $CONF['user'], $CONF['pass']);
     $this->database->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $this->database->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
