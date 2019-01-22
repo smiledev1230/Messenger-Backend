@@ -2530,7 +2530,7 @@ class feed {
 		// The query to select the profile
 		// If the $id is set (used in Add Friend function for profiles) then search for the ID
 		if($id) {
-			$query = sprintf("SELECT `idu`, `username`, `email`, `first_name`, `last_name`, `country`, `location`, `address`, `school`, `work`, `website`, `bio`, `date`, `facebook`, `twitter`, `gplus`, `image`, `private`, `suspended`, `privacy`, `born`, `cover`, `verified`, `gender`, `interests`, `email_new_friend`, `offline`, `online` FROM `users` WHERE `idu` = '%s'", $this->db->real_escape_string($id));
+			$query = sprintf("SELECT `idu`, `token`, `username`, `email`, `first_name`, `last_name`, `country`, `location`, `address`, `school`, `work`, `website`, `bio`, `date`, `facebook`, `twitter`, `gplus`, `image`, `private`, `suspended`, `privacy`, `born`, `cover`, `verified`, `gender`, `interests`, `email_new_friend`, `offline`, `online` FROM `users` WHERE `idu` = '%s'", $this->db->real_escape_string($id));
 		} else {
 			$query = sprintf("SELECT `idu`, `username`, `email`, `first_name`, `last_name`, `country`, `location`, `address`, `school`, `work`, `website`, `bio`, `date`, `facebook`, `twitter`, `gplus`, `image`, `private`, `suspended`, `privacy`, `born`, `cover`, `verified`, `gender`, `interests`, `email_new_friend`, `offline`, `online` FROM `users` WHERE `username` = '%s'", $this->db->real_escape_string($username));
 		}
@@ -3666,6 +3666,11 @@ class feed {
 						if($profile['email_new_friend']) {
 							// Send e-mail
 							sendMail($profile['email'], sprintf($LNG['ttl_friendship_confirmed_email'], $this->username), sprintf($LNG['friendship_confirmed_email'], realName($profile['username'], $profile['first_name'], $profile['last_name']), permalink($this->url.'/index.php?a=profile&u='.$this->username), $this->username, $this->title, $this->title, permalink($this->url.'/index.php?a=settings&b=notifications')), $this->email);
+							$tokens[] = $profile['token'];
+							$apptext = sprintf($LNG['ttl_friendship_confirmed_email'], $this->username);
+							$appurl = $this->url.'/index.php?a=profile&u='.$this->username;
+							$messagean = array("en" => "$apptext");
+							$message_statusan = sendNotificationan($tokens, $messagean, $appurl);							
 						}
 
 						$updateNotification = $this->db->query(sprintf("UPDATE `notifications` SET `type` = '5', `read` = '0', `to` = '%s', `from` = '%s' WHERE `from` = '%s' AND `to` = '%s' AND `type` = 4", $this->db->real_escape_string($profile['idu']), $this->db->real_escape_string($this->id), $this->db->real_escape_string($profile['idu']), $this->db->real_escape_string($this->id)));
@@ -3694,6 +3699,11 @@ class feed {
 								if($profile['email_new_friend']) {
 									// Send e-mail
 									sendMail($profile['email'], sprintf($LNG['ttl_new_friend_email'], $this->username), sprintf($LNG['new_friend_email'], realName($profile['username'], $profile['first_name'], $profile['last_name']), permalink($this->url.'/index.php?a=profile&u='.$this->username), $this->username, $this->title, $this->title, permalink($this->url.'/index.php?a=settings&b=notifications')), $this->email);
+									$tokens[] = $profile['token'];
+									$apptext = sprintf($LNG['ttl_new_friend_email'], $this->username);
+									$appurl = $this->url.'/index.php?a=profile&u='.$this->username;
+									$messagean = array("en" => "$apptext");
+									$message_statusan = sendNotificationan($tokens, $messagean, $appurl);
 								}
 							}
 						}
@@ -4018,6 +4028,11 @@ class feed {
 				if($post['email_like'] && ($this->id !== $post['idu'])) {
 					// Send e-mail
 					sendMail($post['email'], sprintf($email_title, $this->username), sprintf($email_content, realName($post['username'], $post['first_name'], $post['last_name']), permalink($this->url.'/index.php?a=profile&u='.$this->username), $this->username, $email_url, $this->title, permalink($this->url.'/index.php?a=settings&b=notifications')), $this->email);
+					$tokens[] = $post['token'];
+					$apptext = sprintf($email_title, $this->username);
+					$appurl = $email_url;
+					$messagean = array("en" => "$apptext");
+					$message_statusan = sendNotificationan($tokens, $messagean, $appurl);					
 				}
 			}
 		} else {
@@ -4557,6 +4572,11 @@ class feed {
                         if($row['email_comment'] && ($this->id !== $row['idu'])) {
                             // Send e-mail
                             sendMail($row['email'], sprintf($LNG['ttl_comment_email'], $this->username), sprintf($LNG['comment_email'], realName($row['username'], $row['first_name'], $row['last_name']), permalink($this->url . '/index.php?a=profile&u=' . $this->username), $this->username, permalink($this->url . '/index.php?a=post&m=' . $id), $this->title, permalink($this->url . '/index.php?a=settings&b=notifications')), $this->email);
+							$tokens[] = $post['token'];
+							$apptext = sprintf($email_title, $this->username);
+							$appurl = $email_url;
+							$messagean = array("en" => "$apptext");
+							$message_statusan = sendNotificationan($tokens, $messagean, $appurl);
                         }
                     }
                 }
@@ -4575,7 +4595,7 @@ class feed {
 
                     if(!in_array($mention, $prevent)) {
                         // Validate the user
-                        $getUser = $this->db->query(sprintf("SELECT `idu`, `username`, `first_name`, `last_name`, `email`, `email_mention` FROM `users` WHERE `username` = '%s'", $this->db->real_escape_string($mention)));
+                        $getUser = $this->db->query(sprintf("SELECT `idu`, `token`, `username`, `first_name`, `last_name`, `email`, `email_mention` FROM `users` WHERE `username` = '%s'", $this->db->real_escape_string($mention)));
                         $mUser = $getUser->fetch_assoc();
 
                         $getBlocked = $this->db->query(sprintf("SELECT * FROM `blocked` WHERE `by` = '%s' AND `uid` = '%s'", $this->db->real_escape_string($mUser['idu']), $this->db->real_escape_string($this->id)));
@@ -4585,6 +4605,11 @@ class feed {
                             // If the user has email on mention enabled and the email is enabled in the Admin Panel
                             if($mUser['email_mention'] == 1 && $this->email_mention == 1) {
                                 sendMail($mUser['email'], sprintf($LNG['ttl_mention_c_email'], $mUser['username']), sprintf($LNG['mention_c_email'], realName($mUser['username'], $mUser['first_name'], $mUser['last_name']), permalink($this->url.'/index.php?a=profile&u='.$this->username), $this->username, permalink($this->url.'/index.php?a=post&m='.$lastComment['mid'].'#comment'.$lastComment['id']), $this->title, permalink($this->url.'/index.php?a=settings&b=notifications')), $this->site_email);
+								$tokens[] = $mUser['token'];
+								$apptext = sprintf($LNG['ttl_mention_c_email'], $mUser['username']);
+								$appurl = $this->url.'/index.php?a=post&m='.$lastComment['mid'].'#comment'.$lastComment['id'];
+								$messagean = array("en" => "$apptext");
+								$message_statusan = sendNotificationan($tokens, $messagean, $appurl);							
                             }
 
                             $this->db->query(sprintf("INSERT INTO `notifications` (`from`, `to`, `parent`, `child`, `type`, `read`) VALUES ('%s', '%s', '%s', '%s', 11, 0)", $this->id, $mUser['idu'], $lastComment['mid'], $lastComment['id']));
@@ -5338,7 +5363,20 @@ class feed {
 
 		// Prepare the insertion
 		$stmt = $this->db->prepare(sprintf("INSERT INTO `chat` (`from`, `to`, `message`, `type`, `value`, `read`, `time`) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', CURRENT_TIMESTAMP)", $this->db->real_escape_string($this->id), $this->db->real_escape_string($uid), $this->db->real_escape_string(htmlspecialchars($message)), $this->db->real_escape_string($type), $this->db->real_escape_string(strip_tags($value)), 0));
-
+		$messagefrom = $this->db->real_escape_string($this->id);
+		$messageto = $this->db->real_escape_string($uid);
+		$query = $this->db->query(sprintf("SELECT * FROM `users` WHERE `idu` = '$messageto'", $this->db->real_escape_string($user)));
+		$row2 = $query->fetch_assoc();
+		$tokens[] = $row2['token'];
+		$query = $this->db->query(sprintf("SELECT * FROM `users` WHERE `idu` = '$messagefrom'", $this->db->real_escape_string($user)));
+		$row3 = $query->fetch_assoc();
+		$rowusername = $row3['username'];
+		$rowidu = $row3['idu'];
+		$appmessage = "sent you a message";
+		$appmessagemsg = "\n" . $this->db->real_escape_string(htmlspecialchars($message));
+		$appurl = $this->url.'/index.php?a=messages&u='.$rowusername.'&id='.$rowidu;
+		$messagean = array("en" => "$rowusername $appmessage $appmessagemsg");
+		$message_statusan = sendNotificationan($tokens, $messagean, $appurl);
 		// Execute the statement
 		$stmt->execute();
 
@@ -5528,7 +5566,7 @@ class feed {
 				if($this->email_group_invite) {
 
 					// Select the tageted user information
-					$query = $this->db->query(sprintf("SELECT `email_group_invite`, `username`, `first_name`, `last_name`, `email` FROM `users` WHERE `idu` = '%s'", $this->db->real_escape_string($user)));
+					$query = $this->db->query(sprintf("SELECT `email_group_invite`, `token`, `username`, `first_name`, `last_name`, `email` FROM `users` WHERE `idu` = '%s'", $this->db->real_escape_string($user)));
 
 					$row = $query->fetch_assoc();
 
@@ -5538,6 +5576,11 @@ class feed {
 
 						// Send e-mail
 						sendMail($row['email'], sprintf($LNG['ttl_group_invite'], $this->username), sprintf($LNG['group_invite'], realName($row['username'], $row['first_name'], $row['last_name']), permalink($this->url.'/index.php?a=profile&u='.$this->username), $this->username, permalink($this->url.'/index.php?a=group&name='.$this->group_data['name']), $this->group_data['title'], $this->title, permalink($this->url.'/index.php?a=settings&b=notifications')), $this->email);
+						$tokens[] = $row['token'];
+						$apptext = sprintf($LNG['ttl_group_invite'], $this->username);
+						$appurl = $this->url.'/index.php?a=group&name='.$this->group_data['name'];
+						$messagean = array("en" => "$apptext");
+						$message_statusan = sendNotificationan($tokens, $messagean, $appurl);						
 					}
 				}
 			}
@@ -5581,7 +5624,7 @@ class feed {
 				if($this->email_page_invite) {
 
 					// Select the tageted user information
-					$query = $this->db->query(sprintf("SELECT `email_page_invite`, `username`, `first_name`, `last_name`, `email` FROM `users` WHERE `idu` = '%s'", $this->db->real_escape_string($user)));
+					$query = $this->db->query(sprintf("SELECT `email_page_invite`, `token`, `username`, `first_name`, `last_name`, `email` FROM `users` WHERE `idu` = '%s'", $this->db->real_escape_string($user)));
 
 					$row = $query->fetch_assoc();
 
@@ -5591,6 +5634,11 @@ class feed {
 
 						// Send e-mail
 						sendMail($row['email'], sprintf($LNG['ttl_page_invite'], $this->username), sprintf($LNG['page_invite'], realName($row['username'], $row['first_name'], $row['last_name']), permalink($this->url.'/index.php?a=profile&u='.$this->username), $this->username, permalink($this->url.'/index.php?a=page&name='.$this->page_data['name']), $this->page_data['title'], $this->title, permalink($this->url.'/index.php?a=settings&b=notifications')), $this->email);
+						$tokens[] = $row['token'];
+						$apptext = sprintf($LNG['ttl_page_invite'], $this->username);
+						$appurl = $this->url.'/index.php?a=page&name='.$this->page_data['name'];
+						$messagean = array("en" => "$apptext");
+						$message_statusan = sendNotificationan($tokens, $messagean, $appurl);						
 					}
 				}
 			}
@@ -7146,7 +7194,7 @@ class feed {
 					if($i == 30) break;
 					// Validate the user
 					if(!in_array($mention, $prevent)) {
-						$getUser = $this->db->query(sprintf("SELECT `idu`, `username`, `first_name`, `last_name`, `email`, `email_mention` FROM `users` WHERE `username` = '%s'", $this->db->real_escape_string($mention)));
+						$getUser = $this->db->query(sprintf("SELECT `idu`, `token`, `username`, `first_name`, `last_name`, `email`, `email_mention` FROM `users` WHERE `username` = '%s'", $this->db->real_escape_string($mention)));
 						$mUser = $getUser->fetch_assoc();
 
 						$getBlocked = $this->db->query(sprintf("SELECT * FROM `blocked` WHERE `by` = '%s' AND `uid` = '%s'", $this->db->real_escape_string($mUser['idu']), $this->db->real_escape_string($this->id)));
@@ -7156,6 +7204,11 @@ class feed {
 							// If the user has email on mention enabled and the email is enabled in the Admin Panel
 							if($mUser['email_mention'] == 1 && $this->email_mention == 1) {
 								sendMail($mUser['email'], sprintf($LNG['ttl_mention_email'], $mUser['username']), sprintf($LNG['mention_email'], realName($mUser['username'], $mUser['first_name'], $mUser['last_name']), permalink($this->url.'/index.php?a=profile&u='.$this->username), $this->username, permalink($this->url.'/index.php?a=post&m='.$mid['id']), $this->title, permalink($this->url.'/index.php?a=settings&b=notifications')), $this->site_email);
+								$tokens[] = $mUser['token'];
+								$apptext = sprintf($LNG['ttl_mention_email'], $mUser['username']);
+								$appurl = $this->url.'/index.php?a=post&m='.$mid['id'];
+								$messagean = array("en" => "$apptext");
+								$message_statusan = sendNotificationan($tokens, $messagean, $appurl);								
 							}
 
 							$this->db->query(sprintf("INSERT INTO `notifications` (`from`, `to`, `parent`, `child`, `type`, `read`) VALUES ('%s', '%s', '%s', 0, 11, 0)", $this->id, $mUser['idu'], $mid['id']));
@@ -8589,6 +8642,34 @@ function loadPlugins($db) {
 	while($column = $query->fetch_assoc()) {
 		$result[] = array('name' => $column['name'], 'type' => $column['type']);
 	}
+	return $result;
+}
+function sendNotificationan($tokens, $messagean, $msgurl, $sndrimg){
+	$url = 'https://onesignal.com/api/v1/notifications';
+	$fields = array(
+	'app_id' => "ONESIGNAL_APP_ID",
+	"url" => "$msgurl",
+	"large_icon" => "$sndrimg",
+	'include_player_ids' => $tokens,
+	'contents' => $messagean
+	);
+	$headers = array(
+	'Authorization:key = REST_API_KEY',
+	'Content-Type: application/json'
+	);
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0); 
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+	$result = curl_exec($ch); 
+	if ($result === FALSE) {
+	die('Curl failed: ' . curl_error($ch));
+	}
+	curl_close($ch);
 	return $result;
 }
 ?>

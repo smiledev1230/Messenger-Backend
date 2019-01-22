@@ -1,0 +1,16 @@
+{$message}
+<form action="{$url}/index.php?a=admin&b=manage_andnot" method="post">
+<div class="page-inner">
+	{$token_input}
+	<div class="page-input-container">
+		<div class="page-input-title">{$lng->message}</div>
+		<div class="page-input-content">
+			<textarea class="ads" name="and_not">{$and_not}</textarea>
+		</div>
+	</div>
+</div>
+<div class="message-divider"></div>
+<div class="page-inner">
+	<div class="page-input-title"></div><input type="submit" value="{$lng->send}">
+</div>
+</form>

@@ -982,4 +982,14 @@ $LNG['month_9'] = 'September';
 $LNG['month_10'] = 'October';
 $LNG['month_11'] = 'November';
 $LNG['month_12'] = 'December';
+
+$LNG['admin_ttl_manage_andadmob']		= $LNG['admin_menu_manage_andadmob'] 	= 'Android App Setting';
+$LNG['admin_ttl_manage_andnot']		= $LNG['admin_menu_manage_andnot'] 	= 'Android Notification';
+$LNG['app_navigation_and'] 	= 'Bottom Navigation Bar';
+$LNG['banneron_and'] 	= 'Admob Banner';
+$LNG['bannerid_and'] 	= 'Admob Banner ID';
+$LNG['interstitialon_and'] 	= 'Admob Interstitial';
+$LNG['interstitialid_and'] 	= 'Admob Interstitial ID';
+$LNG['slide_and'] 	= 'Sliding Menu';
+$LNG['and_notification_sent'] 	= 'Notification Sent';
 ?>

@@ -834,7 +834,64 @@ function PageMain() {
                 } elseif(isset($_GET['m']) && $_GET['m'] == 'i') {
                     $TMPL['message'] = notificationBox('info', $LNG['nothing_saved']);
                 }
-            } elseif($_GET['b'] == 'site_settings' && isset($user['user_group']) == false) {
+            } elseif($_GET['b'] == 'manage_andadmob' && !$user['user_group']) {
+				$skin = new skin('admin/manage_andadmob'); $page = '';
+				$TMPL['bannerid_and'] = $settings['bannerid_and'];
+				$TMPL['interstitialid_and'] = $settings['interstitialid_and'];
+				if($settings['app_navigation_and'] == '1') {
+					$TMPL['app_navigation_andon'] = 'selected="selected"';
+				} else {
+					$TMPL['app_navigation_andoff'] = 'selected="selected"';
+				}
+				if($settings['slide_and'] == '1') {
+					$TMPL['slide_andon'] = 'selected="selected"';
+				} else {
+					$TMPL['slide_andoff'] = 'selected="selected"';
+				}
+				if($settings['banneron_and'] == '1') {
+					$TMPL['banneron_andon'] = 'selected="selected"';
+				} else {
+					$TMPL['banneron_andoff'] = 'selected="selected"';
+				}
+				if($settings['interstitialon_and'] == '1') {
+					$TMPL['interstitialon_andon'] = 'selected="selected"';
+				} else {
+					$TMPL['interstitialon_andoff'] = 'selected="selected"';
+				}
+				if(!empty($_POST)) {
+					// Unset the submit array element
+					$updateSettings = new updateSettings();
+					$updateSettings->db = $db;
+					$updated = $updateSettings->query_array('settings', $_POST);
+					if($updated == 1) {
+						header("Location: ".$CONF['url']."/index.php?a=admin&b=manage_andadmob&m=s");
+					} else {
+						header("Location: ".$CONF['url']."/index.php?a=admin&b=manage_andadmob&m=i");
+					}
+				}
+				if($_GET['m'] == 's') {
+					$TMPL['message'] = notificationBox('success', $LNG['settings_saved']);
+				} elseif($_GET['m'] == 'i') {
+					$TMPL['message'] = notificationBox('info', $LNG['nothing_saved']);
+				}
+			} elseif($_GET['b'] == 'manage_andnot' && !$user['user_group']) {
+				$skin = new skin('admin/manage_andnot'); $page = '';
+				if(!empty($_POST)) {
+				$get_rows = $db->query("Select token From users where token != ''") or _error(SQL_ERROR);
+				if($get_rows->num_rows > 0) {
+					while($row = $get_rows->fetch_assoc()) {
+						$tokens[] = $row["token"];
+					}
+				}
+				$apptext = $_POST['and_not'];
+				$messagean = array("en" => "$apptext");
+				$message_statusan = sendNotificationan($tokens, $messagean);
+				header("Location: ".$CONF['url']."/index.php?a=admin&b=manage_andnot&m=s");
+				}
+				if($_GET['m'] == 's') {
+					$TMPL['message'] = notificationBox('success', $LNG['and_notification_sent']);
+				}
+			} elseif($_GET['b'] == 'site_settings' && isset($user['user_group']) == false) {
                 $skin = new skin('admin/site_settings');
                 $page = '';
 
@@ -1139,13 +1196,15 @@ function PageMain() {
 					'&b=manage_groups'							=> array('admin_menu_manage_groups', '', 'groups'),
 					'&b=manage_reports'							=> array('admin_menu_manage_reports', adminMenuCounts($db, 0), 'reports'),
 					'&b=manage_ads'								=> array('admin_menu_manage_ads', '', 'ads'),
+					'&b=manage_andadmob'						=> array('admin_menu_manage_andadmob', '', 'settings'),
+					'&b=manage_andnot'							=> array('admin_menu_manage_andnot', '', 'users'),
 					'&b=info_pages'								=> array('admin_menu_info_pages', '', 'info'),
 					'&b=security'								=> array('admin_menu_security', '', 'security'),
 					'&logout'                                  	=> array('admin_menu_logout', '', 'logout'));
 
 	// If the logged-in user is a Moderator, remove menu elements
 	if(isset($user['user_group']) && $user['user_group']) {
-		unset($menu['&b=site_settings'], $menu['&b=users_settings'], $menu['&b=social'], $menu['&b=themes'], $menu['&b=plugins'], $menu['&b=languages'], $menu['&b=manage_ads'], $menu['&b=info_pages'], $menu['&b=security']);
+		unset($menu['&b=site_settings'], $menu['&b=users_settings'], $menu['&b=social'], $menu['&b=themes'], $menu['&b=plugins'], $menu['&b=languages'], $menu['&b=manage_ads'], $menu['&b=manage_andadmob'], $menu['&b=manage_andnot'], $menu['&b=info_pages'], $menu['&b=security']);
 	}
 
 	$i = 1;

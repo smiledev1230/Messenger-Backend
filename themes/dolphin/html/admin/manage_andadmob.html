@@ -1,0 +1,60 @@
+{$message}
+<form action="{$url}/index.php?a=admin&b=manage_andadmob" method="post">
+<div class="page-inner">
+	{$token_input}
+	<div class="page-input-container">
+		<div class="page-input-title">{$lng->app_navigation_and}</div>
+		<div class="page-input-content">
+			<select name="app_navigation_and">
+				<option value="0" {$app_navigation_andoff}>{$lng->off}</option>
+				<option value="1" {$app_navigation_andon}>{$lng->on}</option>
+			</select>
+		</div>
+	</div>
+	<div class="page-input-container">
+		<div class="page-input-title">{$lng->slide_and}</div>
+		<div class="page-input-content">
+			<select name="slide_and">
+				<option value="0" {$slide_andoff}>{$lng->off}</option>
+				<option value="1" {$slide_andon}>{$lng->on}</option>
+			</select>
+		</div>
+	</div>
+	<div class="message-divider"></div>
+	<div class="page-input-container">
+		<div class="page-input-title">{$lng->banneron_and}</div>
+		<div class="page-input-content">
+			<select name="banneron_and">
+				<option value="0" {$banneron_andoff}>{$lng->off}</option>
+				<option value="1" {$banneron_andon}>{$lng->on}</option>
+			</select>
+		</div>
+	</div>
+	<div class="page-input-container">
+		<div class="page-input-title">{$lng->bannerid_and}</div>
+		<div class="page-input-content">
+			<textarea class="ads" name="bannerid_and">{$bannerid_and}</textarea>
+		</div>
+	</div>
+	<div class="message-divider"></div>
+	<div class="page-input-container">
+		<div class="page-input-title">{$lng->interstitialon_and}</div>
+		<div class="page-input-content">
+			<select name="interstitialon_and">
+				<option value="0" {$interstitialon_andoff}>{$lng->off}</option>
+				<option value="1" {$interstitialon_andon}>{$lng->on}</option>
+			</select>
+		</div>
+	</div>
+	<div class="page-input-container">
+		<div class="page-input-title">{$lng->interstitialid_and}</div>
+		<div class="page-input-content">
+			<textarea class="ads" name="interstitialid_and">{$interstitialid_and}</textarea>
+		</div>
+	</div>
+</div>
+<div class="message-divider"></div>
+<div class="page-inner">
+	<div class="page-input-title"></div><input type="submit" value="{$lng->save_changes}">
+</div>
+</form>
