@@ -90,8 +90,8 @@ class Messages extends Database {
     $this->stmt = $this->database->prepare("SELECT usr.`idu` as 'user_id', cht.`id` as 'id', CONCAT(usr.`first_name`, ' ', usr.`last_name`) as `name`, usr.`username` as 'username', usr.`image` as 'avatar', cht.`message` as 'message', FROM_UNIXTIME(UNIX_TIMESTAMP(cht.`time`) - :timezoneOffset) as 'time', cht.`type` as `message_type`, cht.`value` as `message_value` FROM `chat`cht  LEFT JOIN `users` usr ON usr.`idu` = cht.`from` WHERE (cht.`from` = :user2 AND cht.`to` = :user1) AND cht.`read` = 0 ORDER BY cht.`id` DESC");
 
     $assets_url = $CONF['url'].'/thumb.php?src=';
-    $this->stmt->bindParam(':avatars_url', $assets_url, PDO::PARAM_STR);
-    $this->stmt->bindParam(':files_url', $files_url, PDO::PARAM_STR);
+    // $this->stmt->bindParam(':avatars_url', $assets_url, PDO::PARAM_STR);
+    // $this->stmt->bindParam(':files_url', $files_url, PDO::PARAM_STR);
     $this->stmt->bindParam(':user1', $data['user1'], PDO::PARAM_INT);
     $this->stmt->bindParam(':user2', $data['user2'], PDO::PARAM_INT);
     $this->stmt->bindParam(':timezoneOffset', date('Z'), PDO::PARAM_INT);
@@ -375,7 +375,7 @@ class Messages extends Database {
       return $response->withJson($resp, 400);
     }
 
-    $this->stmt = $this->database->prepare("DELETE * FROM `chat` WHERE `id` = :id AND `from` = :from AND `to` = :to");
+    $this->stmt = $this->database->prepare("DELETE FROM `chat` WHERE `id` = :id AND `from` = :from AND `to` = :to");
     $this->stmt->bindParam(':from', $data['from'], PDO::PARAM_INT);
     $this->stmt->bindParam(':to', $data['to'], PDO::PARAM_INT);
     $this->stmt->bindParam(':id', $data['message'], PDO::PARAM_INT);

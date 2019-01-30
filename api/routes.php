@@ -35,6 +35,7 @@ $app->group('', function () {
   // Messages from a specific chat
   $this->post('/messages/chat', \Messages::class.':conversationAllChat' );
   $this->delete('/messages/chat', \Messages::class.':deleteMessage' );
+  $this->post('/messages/delete', \Messages::class.':deleteMessage' );
   $this->post('/messages/chat/pagination/{take}/{offset}', \Messages::class.':conversationAllChat' );
   $this->post('/messages/chat/unread', \Messages::class.':conversationLoadUnread' );
   $this->post('/messages/chat/markread', \Messages::class.':markAsRead' );
